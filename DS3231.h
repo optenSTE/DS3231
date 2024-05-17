@@ -115,8 +115,11 @@ class DS3231 {
 		void setClockMode(bool h12);
 			// Set 12/24h mode. True is 12-h, false is 24-hour.
 
-		// Temperature function
+		// Aging offset value -127..127, 0.1ppm per LSB (Factory default value: 0). Negative values increases the RTC oscillator frequency.
+		int8_t getAgingOffset();
+		bool setAgingOffset(int8_t val);
 
+		// Temperature function
 		float getTemperature();
 
 		// Alarm functions
