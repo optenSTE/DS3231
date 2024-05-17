@@ -413,7 +413,7 @@ void DS3231::setClockMode(bool h12) {
 }
 
 // set Aging offset value -127..127, 0.1ppm per LSB (Factory default value: 0).
-bool ErriezDS3231::setAgingOffset(int8_t val) {
+bool DS3231::setAgingOffset(int8_t val) {
     uint8_t regVal;
 
     // Convert 8-bit signed value to register value
