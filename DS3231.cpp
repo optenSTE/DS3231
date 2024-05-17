@@ -412,6 +412,56 @@ void DS3231::setClockMode(bool h12) {
 	_Wire.endTransmission();
 }
 
+// set Aging offset value -127..127, 0.1ppm per LSB (Factory default value: 0).
+bool ErriezDS3231::setAgingOffset(int8_t val) {
+    uint8_t regVal;
+
+    // Convert 8-bit signed value to register value
+    if (val < 0) {
+        // Calculate two's complement for negative value
+        regVal = ~(-val) + 1;
+    } else {
+        // Positive register value
+        regVal = (uint8_t)val;
+    }
+
+    // Write aging offset register
+    _Wire.beginTransmission(CLOCK_ADDRESS);
+    _Wire.write(0x10);
+    _Wire.write(regVal);
+    _Wire.endTransmission();
+	
+    // A temperature conversion is required to apply the aging offset change
+    getTemperature();
+}
+
+// returns Aging offset value -127..127, 0.1ppm per LSB (Factory default value: 0).
+int8_t DS3231::getAgingOffset() {
+  // Get correction value of DS3231 internal oscillator freq [ppm or us/s]
+  uint8_t regVal;
+
+  // Read aging register
+  _Wire.beginTransmission(CLOCK_ADDRESS);
+  _Wire.write(0x10);
+  _Wire.endTransmission();
+  _Wire.requestFrom(CLOCK_ADDRESS, 1);
+
+  if(_Wire.available()) {
+    regVal = _Wire.read();
+
+    // Convert to 8-bit signed value
+    if (regVal & 0x80) {
+        // Calculate two's complement for negative aging register value
+        return regVal | ~((1 << 8) - 1);
+    } else {
+        // Positive aging register value
+        return regVal;
+    }
+  
+  }	
+  return 0;
+}
+
 float DS3231::getTemperature() {
 	// Checks the internal thermometer on the DS3231 and returns the
 	// temperature as a floating-point value.
